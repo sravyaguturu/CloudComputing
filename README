@@ -1,0 +1,85 @@
+###################################### Steps to connect to the Database ###########################################
+
+1. Install the Oracle 11g version of the database from http://www.oracle.com/technetwork/database/enterprise-edition/downloads/index-092322.html.
+2. Connect to the Database.
+
+####################################### Steps to deploy the server ##################################
+
+1. Import the project "MobileSensingServer" into the eclipse workspace.
+2. Go to MobileSensingServer\src\com\mobilesensing\system\MobileSensingSystem.java. Set the DBUserName and DBPassword to the your current Database UserName and Password.
+3. Publish the webservice by running the file "\MobileSensingServer\src\com\mobilesensing\system\service.java"
+
+######################################## Steps to deploy the android application ############################################# 
+1. Import the project "TrafficAlertSystem" into the ADT workspace. 
+2. Run the application onto the desired android device.
+
+######################################## How to use the application ############################################# 
+1. Install the android application 
+2. Enable GPS in the android device to enable the device to get the geographical co-ordinates. 
+3. Start the webservice (follow Steps to deploy the server). 
+4. Start the database (follow steps to connect to database). 
+5. Click on "Start Driving" on two devices at the same time. 
+6. Start Driving on third device a minute later.
+7. The third device will get traffic message. 
+8. The other two devices will not get any message as they are the source of the message.
+9. Click on get recent alerts to get the list. 
+10. Try to click on "Stop alerts" to stop receiving alerts.
+11. Go to homescreen , even then the device will receive alerts.
+
+
+Hardware Specifications : 
+• Virtual machines
+– To deploy the web service
+• Physical machines
+– To develop the android application and the web service
+• Mobile devices
+– To install the mobile application that sends and receives the traffic updates.
+
+Software Specifications :
+Android SDK:
+Android software development is the process by which new applications are created for the Android operating system. Applications are usually developed
+in the Java programming language using the Android Software Development Kit. Download link :http://developer.android.com/sdk/index.html
+
+Oracle 11g :
+Download the oracle 11g from the following link : http://www.oracle.com/technetwork/database/enterprise-edition/downloads/index-092322.html.
+
+
+TrafficAlertSystem:
+******************
+NetworkService: 
+	> This component will constantly listen for messages from the server and upon receiving a message will forward it to the check radius method.
+	> This method is part of the receiver system of the client application. Here the client validates the received traffic alert and checks if it is valid for that user. This is done by calculating a radius around the current location and checking the distance of the alert location from the current location and if is it below a threshold value is forwarded to the pop up alert system.
+	> This component is responsible for displaying the alert to the user as a pop up message.
+
+SpeedCalculatorService:
+	> When  the user clicks on start Driving, the speedCalculator Service starts running in the background. 
+	> This service sends an automatic traffic update to the server when the speeds drops between 10 miles/hour.
+	> This alert is calculated and sent every one minute. 
+SOAPManager: 
+	> Formats the request and response message to and from the server.
+MainActivity: GetRecentTrafficAlerts
+	This option has been for the user to view the latest 5 traffic alerts that has been sent. 
+When the button is clicked a request is sent to the server to return the latest traffic updates.
+Upon receiving the response from the server, the details are displayed to the user in the form of a table layout.
+
+
+Server:
+*******
+MobileSensingSystem:
+	> An algorithm has been designed and implemented to validate the traffic alerts from the users.
+	Algorithm :
+	Check the message timestamp to check if the message is an outdated message or a valid alert by comparing  it current time stamp and if it is an outdated message discard the message as an outdated message else check if the message timestamp is of later timestamp and If so mark it as an invalid message.
+	Check for the number of counts of the alerts for the same location from different devices. If 	
+	It is greater than 35, mark the severity as high and set an traffic alert
+	If  it is between 20 and 35 , mark the severity as medium and set an traffic alert.
+	If it  is at least greater than 20 , mark  the severity as low and set an traffic alert.
+	Else record the alert for further validation.
+	If the traffic alert has been set , construct a broadcast message and forward it to all devices in a particular range of the traffic alert.
+
+AddressConverter:
+	> Reverse GeoCoding mechanism is implemented to convert the GPS Co-ordinates to the Human readable address.
+MulticastServer:
+	> Broadcasts the message to all the devices in a particular location.
+MessageHandler:
+	> The message extractor extracts the GPS co-ordinates from the received alert message and converts it to a address.
+	> After the alert has been validated, the alert message is broadcasted from the web server.
